@@ -1,0 +1,16 @@
+Credit:
+
+I should mention that I borrowed many parts from sndpeek by Ge Wang and Perry Cook, 
+and that I also received help by looking at source code of Diana by Uri Nieto. 
+The libraries, including chuck_fft, RtAudio, Stk, Thread are all borrowed from sndpeek 
+and not written by me. 
+
+The hardest part of this project was therefore to understand the source code of sndpeek and Diana
+and modify it in a way that I want. Therefore, I was fortunate that I had all the framework
+for the project, and the only job left for me was to come up with new graphics using openGL. 
+I had to learn the basic syntax and how to draw simple objects with openGL. 
+
+If I had more time, I would have created more visual effects, making them more artistic as well. 
+I really enjoyed the project. I had struggles since I couldn't put together the parts that I needed. 
+But once I had it working, I couldn't stop myself changing and adding more features to it. 
+

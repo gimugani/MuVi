@@ -1,0 +1,156 @@
+TITLE
+:MuVi (Music Visualization)
+
+AUTHOR
+:Kwan Kim
+
+ABSTRACT
+:Music Visualizer takes an audio file, analyzes its frequency contents,
+ and creates a visualization based on its frequency
+
+WHAT
+:The program will create a graphical visualization of a .wav file. 
+The graphic will interact with the sound so that its color, movement, 
+or size changes according to features of the input signal such as 
+frequency, loudness, or beat. 
+Since frequency information can be easily obtained by FFTing of 
+the signal, it is a matter of what kind of graphics to create and 
+how to make them interact with the sound. 
+Although I would prefer not to make it explicitly indicate everything 
+as to how the interaction is mapped (it won't be artistically interesting), 
+the interaction should be intuitive and obvious. 
+
+HOW
+
+:I am going to create a visualization of a sound. 
+The project is divided into three parts.
+
+    1: Decoding 2: FFT 3: Visualizing
+
+1.Decoding:
+
+For taking sound as an input, putting it into buffer, and calling it
+asynchronously, I will use RtAudio. RtAudio provides an API for real-time 
+audio input/output across platforms. By defaults, RtAudio looks for 
+the default device (i.e. build-in mic) for sound input. Therefore, 
+using the callback function defined by RtAudio, input sound will be
+detected by the microphone,put into a buffer, and called back for 
+a number of times. 
+
+RtAudio provides all the necessary functions as APIs
+Function protytypes and descriptions are as follows
+
+I will need to open stream and initialize device (built-in mic).
+void initialize_audio(RtAudio *dac);
+this function looks for DAC, and opens & starts streaming
+
+Then I will need a callback function.
+int rtAudioCallback(void *outputBuffer, void *inputBuffer, unsigned int nBufferframes,
+    		double streamTime, RtAudioStreamStatus status, void *data);
+  
+Within the function, the only thing to be done is to declare input/output 
+and to read in/copy input to the buffer that I'm actually going to use. 
+
+For example, 
+SAMPLE * inBuffer = (SAMPLE *)inputBuffer;
+SAMPLE * outBuffer = (SAMPLE *)outputBuffer;
+
+then, copy input to my buffer by
+
+for (int i=0; i < framesPerBuffer; i++){
+    mybuffer[i] = inBuffer[i];
+  }
+
+Now, I'm ready to use the input since I have put it into a buffer
+and I can use RtAudio callback function to keep calling it.
+
+
+2. FFT:
+
+In order to anaylze spectrum, one way of doing it is to 
+first convert the time-domain signal to the frequency-domain. 
+Therefore, FFT is needed. 
+I am going to steal big part of code from chuck_fft, from Sound Peek by 
+Ge Wang, Perry Cook, and Ananya Misra. 
+Using chuck_fft, it is easy to implement FFT and do further to analyze
+spectrum of the sound.  
+
+I apply FFT on a signal, take the real values, and put them into 
+a buffer. Basically the functions that I will going to use for FFT is
+
+void rfft(float *x,  long N, unsigned int forward);
+
+This will put real values of FFTed signal into float * x. 
+
+3. Visualizing
+
+Visualizing is the key part of my project. 
+After understanding the spectral features of the sound, 
+it is a matter of how to represent it visually. 
+For visualization, I will use openGL.
+I will also implemenet my project largely based on Sound Peek, 
+considering it as a starting point. OpenGL provides all the necessary
+functions and APIs, so I will need to decide what sorts of visual effects
+I would use.  For now, I am thinking of creating simple bars that would
+represent frequency spectrums. 
+
+First of all, I would need following functions 
+void initialize_graphics()
+void initialize_glut(int argc, int *argv[])
+
+Creating window, adjusting window size, and other graphical interfaces can be 
+done using basic openGL API, so it's trivial to mention everything here. 
+
+The most important part is to map spectral features of sound with 
+visualization. 
+First of all, I will have to define a struct that contains 
+a 2-dimensional points, x and y. These points represent a point in a window. 
+Then using the returned value from FFT, I could create several visuals
+that depend on the values from FFT. 
+Pseudo code of such function might be:
+
+void drawFrequencyBar(float * buffer){
+
+        for (int i = 0; i <64; i++){
+	glColor3f(1., .2, .4);
+	p[i].x = x;
+	p[i].y = 30*pow(buffer[i], 0.5);
+	x = x+xinc;
+	point *pt = p;
+	glBegin (GL_LINE_STRIP);
+	for (GLint i = 0; i<buffer[i]; i++, pt++)
+	{
+		GlVertex3f(pt->x, pt->y, 0.0f);
+	}	
+	glEnd();
+	glLineWidth(5.0f);
+	}
+	
+this is just for one bar of frequency range from buffer[0] to buffer[63]
+there are 7 more of this.
+
+Another visualization:
+
+void draw2DCircle(float * buffer){
+
+        for (int i = 0; i <64; i++){
+	glColor3f(1., .2, .4);
+	float r = 20*pow(buffer[i], 0.5);
+	int segment = 1000;     
+	glBegin (GL_LINE_STRIP);
+	for (GLint i = 0; i<= segment; i++)
+	{
+		float const t = 2*PIE*(float)n/(float)segment;
+		GlVertex2f(x + sin(t)*r, y + cos(t)*r);
+	}	
+	glEnd();
+	glLineWidth(5.0f);
+
+this only draws one circle that represents frequency range from buffer[0] to buffer[63].
+there are 7 more of this. 
+
+
+
+
+
+  

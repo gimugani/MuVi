@@ -1,0 +1,35 @@
+How to configure on Unix system:
+MuVi should compile by typing: 
+
+make
+
+in the terminal. Even though there may be lots of error messages regarding
+rtAudio being deprecated, it wouldn't affect any performance of the program. 
+If for any reason, the program does not compile and it asks for object file 
+for MuVi (i.e. MuVi.o), typing the following will create it:
+
+gcc -D __MACOSX_CORE__ -o MuVi.cpp 
+
+Then, typing make should compile the program. 
+
+How to run: 
+The program does not take any command line argument. Therefore, 
+simply typing the name of program will successfully run it. 
+It takes sound input from the microphone and visualize the sound
+in different frequency bands accordingly. There are two different modes of
+visual effects : Frequency Bar & Circle. Pressing 'c' while the program is
+running will switch on/off Circle Mode. 
+
+Misc.:
+The program takes sound input and puts into a buffer size of 1024. 
+By only taking real values of FFT, which is half the buffer size, 
+different color represents different frequency ranges stored in the buffer.
+Since it performs in real-time, it is more interesting to see the 
+visualization with an actual piece of music playing along. 
+In Circle Mode, the coordinates for each circle are randomized
+using rand() function. Therefore, their movement across the window does not
+necessarily sync with the beat of the music. However, circles do interact
+with the music by expanding themselves. 
+
+
+
